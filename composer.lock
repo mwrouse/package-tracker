@@ -1,0 +1,77 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "6f5a2e43369cafb86c6bb837d9aab2a6",
+    "packages": [
+        {
+            "name": "shippo/shippo-php",
+            "version": "v1.4.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/goshippo/shippo-php-client.git",
+                "reference": "a2edfa7766f322ef9b719710a5b90df089a4008e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/goshippo/shippo-php-client/zipball/a2edfa7766f322ef9b719710a5b90df089a4008e",
+                "reference": "a2edfa7766f322ef9b719710a5b90df089a4008e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "5.5.*"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib/Shippo/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Shippo & Contributors",
+                    "homepage": "https://goshippo.com/"
+                }
+            ],
+            "description": "A PHP library for connecting with multiple carriers (FedEx, UPS, USPS) using Shippo.",
+            "homepage": "https://goshippo.com/",
+            "keywords": [
+                "FedEx",
+                "Uber",
+                "address",
+                "dhl",
+                "shipping",
+                "shyp",
+                "tracking",
+                "ups",
+                "usps"
+            ],
+            "support": {
+                "issues": "https://github.com/goshippo/shippo-php-client/issues",
+                "source": "https://github.com/goshippo/shippo-php-client/tree/v1.4.4"
+            },
+            "time": "2020-09-14T13:26:17+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
+}
