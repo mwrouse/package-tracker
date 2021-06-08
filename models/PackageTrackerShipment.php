@@ -202,7 +202,7 @@ class PackageTrackerShipmentHistory extends PackageTrackerShipmentStatus
 
     public function Time()
     {
-        return date('M d, Y g:i a', strtotime($this->time));
+        return date('F d, Y g:i a', strtotime($this->time));
     }
 
     public function Message()

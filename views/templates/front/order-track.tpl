@@ -77,7 +77,11 @@
 
             <div class="tracking-item">
                 <div class="date">
-                    {$order['delivery_date']|date_format:"%B %e, %Y %I:%M %p"}
+                    {if count($history) > 0}
+                        {$history[count($history) -1]->Time()|date_format:"%B %e, %Y"}
+                    {else}
+                        {$oder['delivery_date']|date_format:"%B %e, %Y %I:%M %p"}
+                    {/if}
                 </div>
                 <div class="details">
                     {$shop_name} {l s='finished your order and prepped it for shipping.'}
