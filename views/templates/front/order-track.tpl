@@ -1,6 +1,6 @@
 {$css}
 <div class="order-tracking-container">
-    <h1 class="noselect" style="margin-bottom: 10px; color: {$shipment->StatusLabelColor()}">
+    <h1 class="noselect" style="font-size: 3em; margin-top: 10px; margin-bottom: 10px; color: {$shipment->StatusLabelColor()}">
         {$shipment->StatusLabel()}
     </h1>
 
@@ -23,9 +23,9 @@
         <div class="row justify-content-center">
             <div class="col-12">
                 <ul id="progressbar" class="text-center">
-                    <li class="step0{if $shipment->IsPreTransitOrBefore()} active{/if}"></li>
-                    <li class="step0{if $shipment->IsInTransitOrBefore()} active{/if}"></li>
-                    <li class="step0{if $shipment->IsOutForDeliveryOrBefore()} active{/if}"></li>
+                    <li class="step0{if $shipment->IsPreTransitOrAfter()} active{/if}"></li>
+                    <li class="step0{if $shipment->IsInTransitOrAfter()} active{/if}"></li>
+                    <li class="step0{if $shipment->IsOutForDeliveryOrAfter()} active{/if}"></li>
                     <li class="step0{if $shipment->IsDelivered()} active{/if}"></li>
                 </ul>
             </div>
@@ -87,4 +87,4 @@
     </div>
 </div>
 <main class="wrapper slightly-smaller main-container">
-    <span class="small">Last Updated {$shipment->LastUpdateTime()}</span>
+    <span class="small">Last Updated at <b>{$shipment->LastUpdateTime()}</b></span>

@@ -357,18 +357,28 @@ class PackageTrackerShipmentStatus extends ObjectModel
     }
 
 
-    public function IsPreTransitOrBefore()
+    public function IsPreTransitOrAfter()
     {
-        return $this->IsPreTransit() || $this->IsTransit() || $this->IsOutForDelivery() || $this->IsDelivered();
+        return $this->IsPreTransit() || $this->IsInTransitOrAfter();
+    }
+
+    public function IsInTransitOrAfter()
+    {
+        return $this->IsTransit() || $this->IsOutForDeliveryOrAfter();
     }
 
     public function IsInTransitOrBefore()
     {
-        return $this->IsTransit() || $this->IsOutForDelivery() || $this->IsDelivered();
+        return $this->IsTransit() || $this->IsPreTransit();
+    }
+
+    public function IsOutForDeliveryOrAfter()
+    {
+        return $this->IsOutForDelivery() || $this->IsDelivered();
     }
 
     public function IsOutForDeliveryOrBefore()
     {
-        return $this->IsOutForDelivery() || $this->IsDelivered();
+        return $this->IsOutForDelivery() || $this->IsInTransitOrBefore();
     }
 }
