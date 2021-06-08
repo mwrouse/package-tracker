@@ -1,28 +1,21 @@
 {$css}
 <div class="order-tracking-container">
-    <h1 style="margin-bottom: 10px;" class="noselect {if $is_delivered}label-success{/if}{if $is_transit}color-accent{/if}">
-        {if $is_delivered}
-            {l s='Order Delivered'}
-        {/if}
-        {if $is_transit}
-            {l s='Order In Transit'}
-        {/if}
-        {if $is_pretransit}
-            {l s='Order Shipped'}
-        {/if}
+    <h1 class="noselect" style="margin-bottom: 10px; color: {$shipment->StatusLabelColor()}">
+        {$shipment->StatusLabel()}
     </h1>
 
     <div class="tracking-number">
-        <span class="label">{l s='Tracking Number:'}</span> <a href="{$carrier_link}" class="textlink external-link" {if $carrier_link[0] != '#'}target="_blank"{/if}>{$tracking_number}</a>
-
-        {if $is_transit}
-            <br/>
-            <span class="label">Estimated Delivery:</span> {$shipment['eta']}
-        {/if}
+        <span class="label">{l s='Tracking Number:'}</span> <a href="{$carrier_link}" class="textlink external-link" {if $carrier_link[0] != '#'}target="_blank"{/if}>{$shipment->tracking_number}</a>
     </div>
 
+    {if $shipment->IsOutForDeliveryOrBefore()}
+        <div class="estimated-delivery" style="margin-top: 5px">
+            <span class="label">Estimated Delivery:</span> {$shipment->EstimatedDelivery()}
+        </div>
+    {/if}
+
     <div class="shipment-details">
-        {$shipment['tracking_status']['status_details']}
+        {$shipment->LatestMessage()}
     </div>
 
 
@@ -30,27 +23,27 @@
         <div class="row justify-content-center">
             <div class="col-12">
                 <ul id="progressbar" class="text-center">
-                    <li class="step0 active"></li>
-                    <li class="step0 active"></li>
-                    <li class="step0{if $is_transit || $is_delivered} active{/if}"></li>
-                    <li class="step0{if $is_delivered} active{/if}"></li>
+                    <li class="step0{if $shipment->IsPreTransitOrBefore()} active{/if}"></li>
+                    <li class="step0{if $shipment->IsInTransitOrBefore()} active{/if}"></li>
+                    <li class="step0{if $shipment->IsOutForDeliveryOrBefore()} active{/if}"></li>
+                    <li class="step0{if $shipment->IsDelivered()} active{/if}"></li>
                 </ul>
             </div>
         </div>
         <div class="row justify-content-between d-flex text-center" style="margin-top: -10px">
             <div class="row d-flex icon-content">
                 <div class="d-flex flex-column center" >
-                    <p class="font-weight-bold" style="padding-left: 30px;">{l s='Processed'}</p>
+                    <p class="font-weight-bold" style="padding-left: 30px;">{l s='Pre-Transit'}</p>
                 </div>
             </div>
             <div class="row d-flex icon-content">
                 <div class="d-flex flex-column center">
-                    <p class="font-weight-bold">{l s='Shipped'}</p>
+                    <p class="font-weight-bold">{l s='In Transit'}</p>
                 </div>
             </div>
             <div class="row d-flex icon-content">
                 <div class="d-flex flex-column center">
-                    <p class="font-weight-bold" style="margin-left: -10px">{l s='In Transit'}</p>
+                    <p class="font-weight-bold" style="margin-left: -10px">{l s='Out for Delivery'}</p>
                 </div>
             </div>
             <div class="row d-flex icon-content">
@@ -68,16 +61,16 @@
         <h2>{l s='Tracking History'}</h2>
 
         <div class="tracking-list">
-            {foreach from=array_reverse($history) item=event}
+            {foreach from=$history item=event}
                 <div class="tracking-item">
-                    <div class="date">{$event['status_date']|date_format:"%B %e, %Y %I:%M %p"}</div>
+                    <div class="date">{$event->Time()}</div>
 
                     <div class="details">
-                        {$event['status_details']}
+                        {$event->Message()}
                     </div>
 
                     <div class="location">
-                        {$event['location']['city']}{if !empty($event['location']['city']) && !empty($event['location']['state'])}, {/if}{$event['location']['state']} {$event['location']['zip']}
+                        {$event->Location()}
                     </div>
                 </div>
             {/foreach}
@@ -94,3 +87,4 @@
     </div>
 </div>
 <main class="wrapper slightly-smaller main-container">
+    <span class="small">Last Updated {$shipment->LastUpdateTime()}</span>

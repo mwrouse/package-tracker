@@ -1,0 +1,15 @@
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+*.sublime-*
+easypost-php
+vendor
+composer.lock
+bin
+.phplint-cache
+.phpunit.result.cache
+.php_cs.cache

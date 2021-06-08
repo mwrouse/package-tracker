@@ -6,6 +6,16 @@ namespace Composer\Autoload;
 
 class ComposerStaticInitd93359496ff934dc8bbb3397be46883e
 {
+    public static $prefixesPsr0 = array (
+        'E' => 
+        array (
+            'EasyPost' => 
+            array (
+                0 => __DIR__ . '/..' . '/easypost/easypost-php/lib',
+            ),
+        ),
+    );
+
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'CurlClient' => __DIR__ . '/..' . '/shippo/shippo-php/lib/Shippo/CurlClient.php',
@@ -41,6 +51,7 @@ class ComposerStaticInitd93359496ff934dc8bbb3397be46883e
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixesPsr0 = ComposerStaticInitd93359496ff934dc8bbb3397be46883e::$prefixesPsr0;
             $loader->classMap = ComposerStaticInitd93359496ff934dc8bbb3397be46883e::$classMap;
 
         }, null, ClassLoader::class);

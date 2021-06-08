@@ -5,6 +5,7 @@ if (!defined('_TB_VERSION_')) {
 }
 
 require_once(__DIR__ . '/vendor/autoload.php');
+require_once(__DIR__ . '/models/load.php');
 
 /**
  * Module for Tracking Packages
@@ -36,6 +37,8 @@ class PackageTracker extends Module
 
         $this->displayName = $this->l('Package Tracker');
         $this->description = $this->l('Adds a custom order tracking page');
+
+        //PackageTrackerConfig::SetDefaultValues();
     }
 
 
@@ -72,30 +75,9 @@ class PackageTracker extends Module
      *          Config         *
      **************************/
 
-    const API_KEY = 'PACKAGETRACKER_SHIPPO_API_TOKEN';
-
     public function renderForm()
     {
-        $formFields = [
-            'form' => [
-                'legend' => [
-                    'title' => $this->l('Settings'),
-                    'icon'  => 'icon-cogs',
-                ],
-                'input'  => [
-                    [
-                        'type'  => 'text',
-                        'lang'  => true,
-                        'label' => $this->l('Shippo API Token'),
-                        'name'  => static::API_KEY,
-                        'desc'  => $this->l('Enter your Shippo API Token'),
-                    ]
-                ],
-                'submit' => [
-                    'title' => $this->l('Save'),
-                ],
-            ],
-        ];
+        $fields = PackageTrackerConfig::GetForm();
 
         $helper = new HelperForm();
         $helper->show_toolbar = false;
@@ -113,52 +95,18 @@ class PackageTracker extends Module
         $helper->token = Tools::getAdminTokenLite('AdminModules');
 
         $helper->tpl_vars = [
-            'fields_value' => $this->getConfigFieldsValues(),
+            'fields_value' => PackageTrackerConfig::GetValues(),
             'languages'    => $this->context->controller->getLanguages(),
             'id_language'  => $this->context->language->id,
         ];
 
-        return $helper->generateForm([$formFields]);
-    }
-
-    public function getConfigFieldsValues()
-    {
-        $languages = Language::getLanguages(false);
-        $fields = [];
-
-        foreach ($languages as $lang) {
-            try {
-                $fields[static::API_KEY][$lang['id_lang']] = Tools::getValue(
-                    static::API_KEY.'_'.$lang['id_lang'],
-                    Configuration::get(static::API_KEY, $lang['id_lang'])
-                );
-            } catch (Exception $e) {
-                Logger::addLog("Package Tracker hook error: {$e->getMessage()}");
-                $fields[static::API_KEY][$lang['id_lang']] = '';
-            }
-        }
-
-        return $fields;
+        return $helper->generateForm([$fields]);
     }
 
     public function postProcess()
     {
         if (Tools::isSubmit('submitStoreConf')) {
-            $languages = Language::getLanguages(false);
-            $values = [];
-            $updateImagesValues = false;
-
-            foreach ($languages as $lang) {
-
-                $idLang = (int)$lang['id_lang'];
-
-                $values[static::API_KEY][$idLang] = Tools::getValue(static::API_KEY . '_'. $idLang);
-
-            }
-
-
-            Configuration::updateValue(static::API_KEY, $values[static::API_KEY]);
-
+            PackageTrackerConfig::PostProcess();
             return $this->displayConfirmation($this->l('The settings have been updated.'));
         }
 
@@ -182,186 +130,6 @@ class PackageTracker extends Module
         }
     }
 
-
-    /**************************
-     *    Package Tracking    *
-     **************************/
-
-    /**
-     * Returns tracking info for a tracking number
-     */
-    public function getTrackingInfo($tracking_number)
-    {
-        $cache = $this->getCacheForTrackingInfo($tracking_number);
-        if (!is_null($cache) && !is_null($cache['cache']))
-        {
-            $cacheData = unserialize($cache['cache']);
-            if ($cacheData['tracking_status']['status'] == 'DELIVERED')
-                return $cacheData; // Don't update delivered data
-
-            $cacheDate = strtotime($cache['last_update']);
-            $currentDate = strtotime(date('Y-m-d H:i:s'));
-
-            $minutesDiff = (time() - $cacheDate) / 60;
-
-            if ($minutesDiff < 60)
-            {
-                return $cacheData;
-            }
-        }
-
-        // Fetch new data from shippo
-        $carrier = is_null($cache) ? $this->getCarrier($tracking_number) : $cache['carrier'];
-        if (is_null($carrier)) {
-            return null;
-        }
-
-        $latest = $this->getLatestTracking($tracking_number, $carrier);
-
-        if ($latest == null)
-            return null;
-
-        if (is_null($cache))
-            $this->saveCacheForTrackingInfo($tracking_number, $carrier, $latest);
-        else
-            $this->updateCacheForTrackingInfo($cache['id'], $tracking_number, $latest);
-
-        return $latest;
-    }
-
-
-
-    /**
-     * Returns the last cache for a tracking number
-     */
-    private function getCacheForTrackingInfo($tracking_number)
-    {
-        $sql = (new DbQuery())
-                ->select('*')
-                ->from($this->table_name)
-                ->where('tracking_number="'.$tracking_number.'"');
-
-        $result = Db::getInstance()->ExecuteS($sql);
-        if (!$result || count($result) == 0)
-            return null;
-
-        return $result[0];
-    }
-
-
-    /**
-     * Updates cache stored in the database
-     */
-    private function updateCacheForTrackingInfo($id, $tracking_number, $data)
-    {
-        Db::getInstance()->update(
-            $this->table_name,
-            [
-                'tracking_number' => $tracking_number,
-                'cache' => serialize($data),
-                'last_update' => date('Y-m-d H:i:s')
-            ],
-            'id='.$id
-        );
-    }
-
-
-    /**
-     * Saves cache for the first time
-     */
-    private function saveCacheForTrackingInfo($tracking_number, $carrier, $data)
-    {
-        Db::getInstance()->insert(
-            $this->table_name,
-            [
-                'tracking_number' => $tracking_number,
-                'carrier' => $carrier,
-                'cache' => serialize($data),
-                'last_update' => date('Y-m-d H:i:s')
-            ]
-        );
-    }
-
-
-    /**
-     * Returns entire tracking object
-     */
-    private function getLatestTracking($trackingNumber, $carrier)
-    {
-        Shippo::setApiKey(Configuration::get(static::API_KEY, $this->context->language->id));
-
-        $status_params = array(
-            'id' => $trackingNumber,
-            'carrier' => $carrier
-        );
-
-        $status = Shippo_Track::get_status($status_params);
-        return $status;
-    }
-
-
-    /**
-     * Returns the carrier code based on the tracking number
-     */
-    private function getCarrier($tracking_code)
-    {
-        $matches = [];
-        $carrier_code = null;
-
-        if (preg_match('/^[0-9]{2}[0-9]{4}[0-9]{4}$/', $tracking_code, $matches)) {
-            $carrier_code = 'dhl';
-        } elseif (preg_match('/^[1-9]{4}[0-9]{4}[0-9]{4}$/', $tracking_code, $matches)) {
-            $carrier_code = 'fedex';
-        } elseif (preg_match('/^1Z[A-Z0-9]{3}[A-Z0-9]{3}[0-9]{2}[0-9]{4}[0-9]{4}$/i', $tracking_code)) {
-            $carrier_code = 'ups';
-        } elseif (preg_match('/^[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2}$/', $tracking_code)) {
-            $carrier_code = 'usps';
-        } elseif (preg_match(
-            '/^420[0-9]{5}([0-9]{4}[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2})$/',
-            $tracking_code,
-            $matches
-        )) {
-            $this->tracking_code = $matches[1];
-
-            $carrier_code = 'usps';
-        }
-        if (is_null($carrier_code))
-        {
-            return 'usps';
-        }
-        return $carrier_code;
-    }
-
-
-    public function getCarrierLink($tracking_number)
-    {
-        $carrier = $this->getCarrier($tracking_number);
-        if (is_null($carrier))
-            return '#';
-        $url = '#';
-
-        switch ($carrier) {
-            case 'usps':
-                $url = 'https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1=';
-                break;
-
-            case 'fedex':
-                $url = 'http://www.fedex.com/Tracking?tracknumbers=';
-                break;
-
-            case 'ups':
-                $url = 'https://www.ups.com/track?loc=en_US&tracknum=';
-                break;
-
-            case 'dhl':
-                $url = 'http://webtrack.dhlglobalmail.com/?trackingnumber=';
-                break;
-        }
-
-        return $url.$tracking_number;
-    }
-
-
     /**************************
      *    Install/Uninstall   *
      **************************/
@@ -370,6 +138,8 @@ class PackageTracker extends Module
         if (!parent::install() || ! $this->_createDatabases()) {
             return false;
         }
+
+        PackageTrackerConfig::SetDefaultValues();
 
         $this->installFixture();
 

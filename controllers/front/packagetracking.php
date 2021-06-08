@@ -11,6 +11,7 @@ class PackageTrackerPackageTrackingModuleFrontController extends ModuleFrontCont
     public function initContent()
     {
         parent::initContent();
+
         try {
             $trackingNumber = Tools::getValue('trackingNumber');
             $this->context->smarty->assign([
@@ -21,23 +22,21 @@ class PackageTrackerPackageTrackingModuleFrontController extends ModuleFrontCont
             if (!isset($order['tracking_number']) || empty($order['tracking_number']))
                 return $this->return404();
 
-            $shipment = $this->module->getTrackingInfo($trackingNumber);
+            $shipment = PackageTrackerShipment::Track($trackingNumber);
             if ($shipment == null) {
                 return $this->return404();
             }
 
-            $status = $shipment['tracking_status']['status'];
-
             $this->context->smarty->assign([
                 'order' => $order,
                 'shipment' => $shipment,
-                'is_pretransit' => $status == 'PRE_TRANSIT',
-                'is_transit' => $status == 'TRANSIT',
-                'is_delivered' => $status == 'DELIVERED',
-                'history' => $shipment['tracking_history'],
-                'carrier_link' => $this->module->getCarrierLink($trackingNumber),
+                'is_pretransit' => $shipment->IsPreTransit(),
+                'is_transit' => $shipment->IsTransit(),
+                'is_delivered' => $shipment->IsDelivered(),
+                'out_for_delivery' => $shipment->IsOutForDelivery(),
+                'history' => $shipment->History(),
+                'carrier_link' => $shipment->CarrierLink(),
             ]);
-
 
             $this->setTitle('Order Tracking');
 

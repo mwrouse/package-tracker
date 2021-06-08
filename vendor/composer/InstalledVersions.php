@@ -32,7 +32,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '2bdb461975df77a395dada2a3840cecd9f1295c8',
+    'reference' => '1f7a0f2d226911957bcab4600142c614f1cf85b1',
     'name' => '__root__',
   ),
   'versions' => 
@@ -44,7 +44,16 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '2bdb461975df77a395dada2a3840cecd9f1295c8',
+      'reference' => '1f7a0f2d226911957bcab4600142c614f1cf85b1',
+    ),
+    'easypost/easypost-php' => 
+    array (
+      'pretty_version' => '3.5.0',
+      'version' => '3.5.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'e225cfeb7ee2459a32b3efaa710358ac3bb116c3',
     ),
     'shippo/shippo-php' => 
     array (
