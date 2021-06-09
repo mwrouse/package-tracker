@@ -32,7 +32,7 @@ class PackageTrackerConfig
 
     public static function Save($key, $value)
     {
-        error_log('Saving ' . $key . ' => ' . print_r($value, true));
+        //error_log('Saving ' . $key . ' => ' . print_r($value, true));
         Configuration::updateValue($key, $value);
     }
 
@@ -206,7 +206,7 @@ class PackageTrackerConfig
                 $key,
                 Configuration::get($key)
             );
-            error_log('Getting ' . $key.': '. $fields[$key]);
+            //error_log('Getting ' . $key.': '. $fields[$key]);
         }
 
         return $fields;

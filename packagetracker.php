@@ -37,8 +37,6 @@ class PackageTracker extends Module
 
         $this->displayName = $this->l('Package Tracker');
         $this->description = $this->l('Adds a custom order tracking page');
-
-        //PackageTrackerConfig::SetDefaultValues();
     }
 
 
