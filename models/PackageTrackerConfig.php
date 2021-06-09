@@ -16,7 +16,10 @@ class PackageTrackerConfig
     const COLOR_RETURNED = PackageTrackerConfig::PREFIX.'COLOR_RETURNED';
     const COLOR_FAILURE = PackageTrackerConfig::PREFIX.'COLOR_FAILURE';
     const COLOR_CANCELLED = PackageTrackerConfig::PREFIX.'COLOR_CANCELLED';
-    const COLOR_ERROR = PackageTrackerConfig::PREFIX.'ERROR';
+    const COLOR_ERROR = PackageTrackerConfig::PREFIX.'COLOR_ERROR';
+
+    const STATE_WHENSHIPPED = PackageTrackerConfig::PREFIX.'STATE_SHIPPED';
+    const STATE_WHENDELIVERED = PackageTrackerConfig::PREFIX.'STATE_DELIVERED';
 
 
     public static function Get($key, $lang = null)
@@ -29,6 +32,7 @@ class PackageTrackerConfig
 
     public static function Save($key, $value)
     {
+        error_log('Saving ' . $key . ' => ' . print_r($value, true));
         Configuration::updateValue($key, $value);
     }
 
@@ -51,23 +55,27 @@ class PackageTrackerConfig
 
         foreach ($languages as $lang) {
             try {
-                $fields = static::_get($fields, static::API_KEY, $lang, true);
-                $fields = static::_get($fields, static::COLOR_UNKNOWN, $lang);
-                $fields = static::_get($fields, static::COLOR_PRETRANSIT, $lang);
-                $fields = static::_get($fields, static::COLOR_TRANSIT, $lang);
-                $fields = static::_get($fields, static::COLOR_OFD, $lang);
-                $fields = static::_get($fields, static::COLOR_DELIVERED, $lang);
-                $fields = static::_get($fields, static::COLOR_PICKUPREADY, $lang);
-                $fields = static::_get($fields, static::COLOR_RETURNED, $lang);
-                $fields = static::_get($fields, static::COLOR_FAILURE, $lang);
-                $fields = static::_get($fields, static::COLOR_CANCELLED, $lang);
-                $fields = static::_get($fields, static::COLOR_ERROR, $lang);
-
+                $fields = static::_get($fields, static::API_KEY, $lang);
             } catch (Exception $e) {
                 Logger::addLog("Package Tracker hook error: {$e->getMessage()}");
 
             }
         }
+
+
+        $fields = static::_get($fields, static::COLOR_UNKNOWN);
+        $fields = static::_get($fields, static::COLOR_PRETRANSIT);
+        $fields = static::_get($fields, static::COLOR_TRANSIT);
+        $fields = static::_get($fields, static::COLOR_OFD);
+        $fields = static::_get($fields, static::COLOR_DELIVERED);
+        $fields = static::_get($fields, static::COLOR_PICKUPREADY);
+        $fields = static::_get($fields, static::COLOR_RETURNED);
+        $fields = static::_get($fields, static::COLOR_FAILURE);
+        $fields = static::_get($fields, static::COLOR_CANCELLED);
+        $fields = static::_get($fields, static::COLOR_ERROR);
+
+        $fields = static::_get($fields, static::STATE_WHENSHIPPED);
+        $fields = static::_get($fields, static::STATE_WHENDELIVERED);
 
         return $fields;
     }
@@ -78,26 +86,30 @@ class PackageTrackerConfig
      */
     public static function PostProcess()
     {
-        $languages = Language::getLanguages(false);
         $values = [];
         $updateImagesValues = false;
 
+        $languages = Language::getLanguages(false);
         foreach ($languages as $lang) {
-            $values = static::_pp($values, static::API_KEY, $lang, true);
-            $values = static::_pp($values, static::COLOR_UNKNOWN, $lang);
-            $values = static::_pp($values, static::COLOR_PRETRANSIT, $lang);
-            $values = static::_pp($values, static::COLOR_TRANSIT, $lang);
-            $values = static::_pp($values, static::COLOR_OFD, $lang);
-            $values = static::_pp($values, static::COLOR_DELIVERED, $lang);
-            $values = static::_pp($values, static::COLOR_PICKUPREADY, $lang);
-            $values = static::_pp($values, static::COLOR_RETURNED, $lang);
-            $values = static::_pp($values, static::COLOR_FAILURE, $lang);
-            $values = static::_pp($values, static::COLOR_CANCELLED, $lang);
-            $values = static::_pp($values, static::COLOR_ERROR, $lang);
+            $values = static::_pp($values, static::API_KEY, $lang);
+
         }
 
+        $values = static::_pp($values, static::COLOR_UNKNOWN);
+        $values = static::_pp($values, static::COLOR_PRETRANSIT);
+        $values = static::_pp($values, static::COLOR_TRANSIT);
+        $values = static::_pp($values, static::COLOR_OFD);
+        $values = static::_pp($values, static::COLOR_DELIVERED);
+        $values = static::_pp($values, static::COLOR_PICKUPREADY);
+        $values = static::_pp($values, static::COLOR_RETURNED);
+        $values = static::_pp($values, static::COLOR_FAILURE);
+        $values = static::_pp($values, static::COLOR_CANCELLED);
+        $values = static::_pp($values, static::COLOR_ERROR);
+
+        $values = static::_pp($values, static::STATE_WHENSHIPPED);
+        $values = static::_PP($values, static::STATE_WHENDELIVERED);
+
         static::BulkSave($values);
-        //Configuration::updateValue(static::API_KEY, $values[static::API_KEY]);
     }
 
 
@@ -147,13 +159,43 @@ class PackageTrackerConfig
                 'name' => $key,
             ];
         }
+
+        $languages = Language::getLanguages(false);
+        $states = OrderState::getOrderStates($languages[0]['id_lang']);
+
+        $formFields['form']['input'][] = [
+            'type' => 'select',
+            'lang' => false,
+            'label' => 'State of Orders to Watch for Delivery',
+            'name' => static::STATE_WHENSHIPPED,
+            'required' => true,
+            'options' => [
+                'query' => $states,
+                'id' => 'id_order_state',
+                'name' => 'name'
+            ]
+        ];
+
+        $formFields['form']['input'][] = [
+            'type' => 'select',
+            'lang' => false,
+            'label' => 'State of Orders to Set When Delivered',
+            'name' => static::STATE_WHENDELIVERED,
+            'required' => true,
+            'options' => [
+                'query' => $states,
+                'id' => 'id_order_state',
+                'name' => 'name'
+            ]
+        ];
+
         return $formFields;
     }
 
 
-    private static function _get(&$fields, $key, $lang, $useLang = false)
+    private static function _get(&$fields, $key, $lang = null)
     {
-        if ($useLang) {
+        if (!is_null($lang)) {
             $fields[$key][$lang['id_lang']] = Tools::getValue(
                 $key.'_'.$lang['id_lang'],
                 Configuration::get($key, $lang['id_lang'])
@@ -164,14 +206,15 @@ class PackageTrackerConfig
                 $key,
                 Configuration::get($key)
             );
+            error_log('Getting ' . $key.': '. $fields[$key]);
         }
 
         return $fields;
     }
 
-    private static function _pp(&$values, $key, $lang, $useLang = false)
+    private static function _pp(&$values, $key, $lang = null)
     {
-        if ($useLang)
+        if (!is_null($lang))
         {
             $values[$key][$lang['id_lang']] = Tools::getValue($key.'_'.$lang['id_lang']);
         }
@@ -195,6 +238,8 @@ class PackageTrackerConfig
             static::COLOR_RETURNED => '#4b92ff',
             static::COLOR_FAILURE => '#ff4b4b',
             static::COLOR_CANCELLED => '#ff4ba0',
+            static::STATE_WHENSHIPPED => 3,
+            static::STATE_WHENDELIVERED => 4,
         ];
 
         static::BulkSave($defaults);
