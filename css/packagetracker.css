@@ -1,3 +1,9 @@
+.order-tracking-container .text-center {
+  text-align: center;
+}
+.order-tracking-container .center {
+  margin: 0 auto;
+}
 .order-tracking-container .tracking-number {
   margin-bottom: 20px;
   margin-top: 0;
