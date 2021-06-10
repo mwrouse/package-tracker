@@ -53,7 +53,10 @@ class PackageTrackerShipment extends PackageTrackerShipmentStatus
      */
     public function EstimatedDelivery()
     {
-        return date('l, M d', strtotime($this->est_delivery));
+        $dt = new DateTime();
+        $dt->setTimeZone(new DateTimeZone('UTC'));
+        $dt->setTimeStamp(strtotime($this->est_delivery));
+        return $dt->format('l, M d');
     }
 
 
@@ -103,7 +106,7 @@ class PackageTrackerShipment extends PackageTrackerShipmentStatus
 
     public function LastUpdateTime()
     {
-        return date('M d, Y g:i a', strtotime($this->updated_at));
+        return date('M j, Y g:i a', strtotime($this->updated_at));
     }
 
 
@@ -202,7 +205,15 @@ class PackageTrackerShipmentHistory extends PackageTrackerShipmentStatus
 
     public function Time()
     {
-        return date('F d, Y g:i a', strtotime($this->time));
+        $dt = new DateTime();
+        $dt->setTimeZone(new DateTimeZone('UTC'));
+        $dt->setTimeStamp(strtotime($this->time));
+        $format = 'F j, Y';
+
+        if ($dt->format('H:i') != '00:00')
+            $format .= ' g:i a';
+
+        return $dt->format($format);
     }
 
     public function Message()

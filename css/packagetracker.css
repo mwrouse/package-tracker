@@ -1,5 +1,14 @@
+.order-tracking-container .tracking-number {
+  margin-bottom: 20px;
+  margin-top: 0;
+}
 .order-tracking-container .tracking-number .label {
   font-weight: bold;
+}
+.order-tracking-container .estimated-delivery .estimated-date {
+  line-height: 1em;
+  font-size: 2em;
+  margin-top: 5px;
 }
 .order-tracking-container .shipment-details {
   margin-top: 20px;

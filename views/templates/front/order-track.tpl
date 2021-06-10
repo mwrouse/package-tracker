@@ -1,23 +1,21 @@
 {$css}
-<div class="order-tracking-container">
+<div class="order-tracking-container text-center">
     <h1 class="noselect" style="font-size: 3em; margin-top: 10px; margin-bottom: 10px; color: {$shipment->StatusLabelColor()}">
         {$shipment->StatusLabel()}
     </h1>
 
-    <div class="tracking-number">
-        <span class="label">{l s='Tracking Number:'}</span> <a href="{$carrier_link}" class="textlink external-link" {if $carrier_link[0] != '#'}target="_blank"{/if}>{$shipment->tracking_number}</a>
-    </div>
-
     {if $shipment->IsOutForDeliveryOrBefore()}
-        <div class="estimated-delivery" style="margin-top: 5px">
-            <span class="label">Estimated Delivery:</span> {$shipment->EstimatedDelivery()}
+        <div class="estimated-delivery text-center" style="margin-top: 5px">
+            <span class="label small">Estimated Delivery</span>
+            <div class="estimated-date">
+                {$shipment->EstimatedDelivery()}
+            </div>
         </div>
     {/if}
 
-    <div class="shipment-details">
+    <div class="shipment-details text-center">
         {$shipment->LatestMessage()}
     </div>
-
 
     <div class="shipment-progress noselect">
         <div class="row justify-content-center">
@@ -58,7 +56,12 @@
 </main>
 <div class="clearfix col-xs-12 bg-color-dark order-tracking-container">
     <div class="wrapper slightly-smaller center shipment-history">
-        <h2>{l s='Tracking History'}</h2>
+        <h2 style="margin-bottom: 5px">{l s='Tracking History'}</h2>
+
+        <div class="tracking-number">
+            <a href="{$carrier_link}" class="textlink external-link" {if $carrier_link[0] != '#'}target="_blank"{/if}>{$shipment->tracking_number}</a>
+        </div>
+
 
         <div class="tracking-list">
             {foreach from=$history item=event}
