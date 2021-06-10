@@ -1,5 +1,5 @@
 <?php
-require_once('./PackageTrackerConfig.php');
-require_once('./PackageTrackerAPI.php');
-require_once('./PackageTrackerShipment.php');
+require_once(__DIR__.'/PackageTrackerConfig.php');
+require_once(__DIR__.'/PackageTrackerAPI.php');
+require_once(__DIR__.'/PackageTrackerShipment.php');
 ?>

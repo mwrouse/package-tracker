@@ -3,6 +3,8 @@
 
 class PackageTrackerConfig
 {
+    const TABLE_NAME = 'packagetracker';
+
     const PREFIX = 'PACKAGETRACKER_';
 
     const API_KEY = PackageTrackerConfig::PREFIX.'API_TOKEN';
@@ -20,6 +22,8 @@ class PackageTrackerConfig
 
     const STATE_WHENSHIPPED = PackageTrackerConfig::PREFIX.'STATE_SHIPPED';
     const STATE_WHENDELIVERED = PackageTrackerConfig::PREFIX.'STATE_DELIVERED';
+
+    const CACHE_TIME = PackageTrackerConfig::PREFIX.'CACHE_REFRESH';
 
 
     public static function Get($key, $lang = null)
@@ -240,6 +244,7 @@ class PackageTrackerConfig
             static::COLOR_CANCELLED => '#ff4ba0',
             static::STATE_WHENSHIPPED => 3,
             static::STATE_WHENDELIVERED => 4,
+            static::CACHE_TIME => 10,
         ];
 
         static::BulkSave($defaults);

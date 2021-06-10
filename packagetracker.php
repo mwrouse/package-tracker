@@ -24,7 +24,7 @@ class PackageTracker extends Module
         $this->tb_min_version = '1.0.0';
         $this->tb_versions_compliancy = '> 1.0.0';
         $this->need_instance = 0;
-        $this->table_name = 'packagetracker';
+        $this->table_name = PackageTrackerConfig::TABLE_NAME;
         $this->bootstrap = true;
 
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => '1.6.99.99'];

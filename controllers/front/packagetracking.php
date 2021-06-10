@@ -43,7 +43,6 @@ class PackageTrackerPackageTrackingModuleFrontController extends ModuleFrontCont
             return $this->setTemplate('order-track.tpl');
         }
         catch (Exception $e) {
-            error_log(print_r($e, true));
             return $this->return404();
         }
     }
