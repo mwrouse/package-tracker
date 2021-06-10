@@ -96,10 +96,13 @@ class PackageTrackerShipment extends PackageTrackerShipmentStatus
      */
     public function LatestMessage()
     {
+        if ($this->IsUnknown())
+            return 'This shipment has only been created, please allow 12-24 hours for tracking updates.';
+
         $this->AssembleHistory();
 
         if (count($this->_historyCache) == 0)
-            return '';
+            return 'There are no updates about this shipment yet';
 
         return $this->_historyCache[0]->Message();
     }
