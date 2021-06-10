@@ -1,11 +1,15 @@
 {$css}
 <div class="order-tracking-container text-center">
-    <h1 class="noselect" style="font-size: 3em; margin-top: 10px; margin-bottom: 10px; color: {$shipment->StatusLabelColor()}">
+    <div class="small" style="margin-top: 20px; margin-bottom: 0">
+        {l s='Your Shipment Is'}
+    </div>
+
+    <h1 class="noselect" style="font-size: 4em; margin-top: 5px; margin-bottom: 10px; color: {$shipment->StatusLabelColor()}">
         {$shipment->StatusLabel()}
     </h1>
 
     {if $shipment->IsOutForDeliveryOrBefore()}
-        <div class="estimated-delivery text-center" style="margin-top: 5px">
+        <div class="estimated-delivery text-center" style="margin-top: 25px">
             <span class="label small">{l s='Estimated Delivery'}</span>
             <div class="estimated-date">
                 {$shipment->EstimatedDelivery()}

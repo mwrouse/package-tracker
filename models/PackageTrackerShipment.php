@@ -56,7 +56,7 @@ class PackageTrackerShipment extends PackageTrackerShipmentStatus
         $dt = new DateTime();
         $dt->setTimeZone(new DateTimeZone('UTC'));
         $dt->setTimeStamp(strtotime($this->est_delivery));
-        return $dt->format('l, M d');
+        return $dt->format('l, F d');
     }
 
 
@@ -256,7 +256,7 @@ class PackageTrackerShipmentStatus extends ObjectModel
     {
         if ($this->IsPreTransit())
         {
-            return 'Pre-Transit';
+            return 'In Pre-Transit';
         }
         else if ($this->IsTransit())
         {
@@ -272,11 +272,11 @@ class PackageTrackerShipmentStatus extends ObjectModel
         }
         else if ($this->IsUnknown())
         {
-            return 'Unknown';
+            return 'Pending';
         }
         else if ($this->IsFailure())
         {
-            return 'Delivery Failure';
+            return 'Delivery Failed';
         }
         else if ($this->IsReturnToSender())
         {
