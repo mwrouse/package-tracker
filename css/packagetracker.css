@@ -14,6 +14,9 @@
   margin-top: 20px;
   line-height: 1.2em;
 }
+.order-tracking-container .order-details span {
+  display: block;
+}
 .order-tracking-container .shipment-progress #progressbar {
   overflow: hidden;
   color: #fff;

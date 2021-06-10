@@ -27,6 +27,18 @@ class PackageTrackerPackageTrackingModuleFrontController extends ModuleFrontCont
                 return $this->return404();
             }
 
+            $order_link = null;
+            $is_my_order = false;
+            if ($this->context->customer->isLogged())
+            {
+                $is_my_order = $this->context->customer->id_customer == $order['id_customer'];
+
+                if ($is_my_order)
+                {
+                    $order_link = $this->context->link->getPageLink('order-detail', true, null, 'id_order=' . $order['id_order']);
+                }
+            }
+
             $this->context->smarty->assign([
                 'order' => $order,
                 'shipment' => $shipment,
@@ -36,7 +48,11 @@ class PackageTrackerPackageTrackingModuleFrontController extends ModuleFrontCont
                 'out_for_delivery' => $shipment->IsOutForDelivery(),
                 'history' => $shipment->History(),
                 'carrier_link' => $shipment->CarrierLink(),
+                'is_my_order' => $is_my_order,
             ]);
+
+            if (!is_null($order_link))
+                $this->context->smarty->assign(['order_link' => $order_link]);
 
             $this->setTitle('Order Tracking');
 

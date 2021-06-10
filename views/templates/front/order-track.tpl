@@ -6,7 +6,7 @@
 
     {if $shipment->IsOutForDeliveryOrBefore()}
         <div class="estimated-delivery text-center" style="margin-top: 5px">
-            <span class="label small">Estimated Delivery</span>
+            <span class="label small">{l s='Estimated Delivery'}</span>
             <div class="estimated-date">
                 {$shipment->EstimatedDelivery()}
             </div>
@@ -50,6 +50,22 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    {if $is_my_order}
+        <div class="order-details">
+            <span>{l s='Order'} <b>{$order['reference']}</b></span>
+            <span style="margin-top: 5px; margin-bottom: 5px;">{l s='Placed on'} <b>{$order['date_add']|date_format:"%B %e, %Y"}</b> for <b>{Tools::displayPrice($order['total_paid_tax_incl'])}</b></span>
+            <div>
+                <a href="{$order_link}" target="_blank" class="btn btn-success three-quarters-width-mobile" style="margin-bottom: 20px; ">
+                    {l s='View Your Order'}
+                </a>
+            </div>
+        </div>
+    {/if}
+
+    <div class="alert alert-info text-left" style="margin-bottom: 20px;">
+        {l s='If you have any problems with your order please contact us using our'} <a href="{$link->getPageLink('contact', true)}" target="_blank" class="textlink accent-color">{l s='Contact Page'}</a>.
     </div>
 </div>
 
