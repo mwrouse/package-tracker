@@ -10,6 +10,7 @@ $deliveredState = PackageTrackerConfig::Get(PackageTrackerConfig::STATE_WHENDELI
 
 function hasOrderBeenShippedButNotDeliveredBefore($o)
 {
+    global $deliveredState;
     $shipped = ($o->hasBeenShipped() > 0);
     $delivered = false;
 
